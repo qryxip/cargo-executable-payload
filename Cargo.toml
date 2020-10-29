@@ -1,6 +1,6 @@
 [package]
 name = "cargo-executable-payload"
-version = "0.0.0"
+version = "0.1.0"
 authors = ["Ryo Yamashita <qryxip@gmail.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
@@ -8,7 +8,6 @@ description = "A Cargo subcommand for creating standalone source files with base
 repository = "https://github.com/qryxip/cargo-executable-payload"
 keywords = ["competitive"]
 categories = ["command-line-utilities", "development-tools::cargo-plugins"]
-publish = false
 
 [dependencies]
 anyhow = "1.0.33"
