@@ -1,11 +1,11 @@
 [package]
-name = "cargo-b64encode"
+name = "cargo-executable-payload"
 version = "0.0.0"
 authors = ["Ryo Yamashita <qryxip@gmail.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
 description = "A Cargo subcommand for creating standalone source files with base64-encoded payload."
-repository = "https://github.com/qryxip/cargo-b64encode"
+repository = "https://github.com/qryxip/cargo-executable-payload"
 keywords = ["competitive"]
 categories = ["command-line-utilities", "development-tools::cargo-plugins"]
 publish = false

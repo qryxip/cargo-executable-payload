@@ -1,9 +1,9 @@
-# cargo-b64encode
+# cargo-executable-payload
 
-[![CI](https://github.com/qryxip/cargo-b64encode/workflows/CI/badge.svg)](https://github.com/qryxip/cargo-b64encode/actions?workflow=CI)
-[![dependency status](https://deps.rs/repo/github/qryxip/cargo-b64encode/status.svg)](https://deps.rs/repo/github/qryxip/cargo-b64encode)
-[![Crates.io](https://img.shields.io/crates/v/cargo-b64encode.svg)](https://crates.io/crates/cargo-b64encode)
-[![Crates.io](https://img.shields.io/crates/l/cargo-b64encode.svg)](https://crates.io/crates/cargo-b64encode)
+[![CI](https://github.com/qryxip/cargo-executable-payload/workflows/CI/badge.svg)](https://github.com/qryxip/cargo-executable-payload/actions?workflow=CI)
+[![dependency status](https://deps.rs/repo/github/qryxip/cargo-executable-payload/status.svg)](https://deps.rs/repo/github/qryxip/cargo-executable-payload)
+[![Crates.io](https://img.shields.io/crates/v/cargo-executable-payload.svg)](https://crates.io/crates/cargo-executable-payload)
+[![Crates.io](https://img.shields.io/crates/l/cargo-executable-payload.svg)](https://crates.io/crates/cargo-executable-payload)
 
 A Cargo subcommand for creating standalone source files with base64-encoded payload.
 
@@ -12,23 +12,23 @@ A Cargo subcommand for creating standalone source files with base64-encoded payl
 ### Crates.io
 
 ```console
-$ cargo install cargo-b64encode
+$ cargo install cargo-executable-payload
 ```
 
 ### `master`
 
 ```console
-$ cargo install --git https://github.com/qryxip/cargo-b64encode
+$ cargo install --git https://github.com/qryxip/cargo-executable-payload
 ```
 
 ### GitHub Releases
 
-[Releases](https://github.com/qryxip/cargo-b64encode/releases)
+[Releases](https://github.com/qryxip/cargo-executable-payload/releases)
 
 ## Usage
 
 ```console
-$ cargo b64encode -o ./submission.rs
+$ cargo executable-payload -o ./submission.rs
 ```
 
 With [cargo-compete](https://crates.io/crates/cargo-compete),
@@ -36,5 +36,5 @@ With [cargo-compete](https://crates.io/crates/cargo-compete),
 ```toml
 [submit.transpile]
 kind = "command"
-args = ["cargo", "b64encode", "--bin", "{{ bin_name }}"]
+args = ["cargo", "executable-payload", "--bin", "{{ bin_name }}"]
 ```

@@ -1,10 +1,10 @@
-use cargo_b64encode::{Opt, Shell};
+use cargo_executable_payload::{Opt, Shell};
 use structopt::{clap, StructOpt as _};
 
 fn main() {
     let opt = Opt::from_args();
     let mut shell = Shell::new();
-    if let Err(err) = cargo_b64encode::run(opt, &mut shell) {
+    if let Err(err) = cargo_executable_payload::run(opt, &mut shell) {
         exit_with_error(err, &mut shell);
     }
 }
