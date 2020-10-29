@@ -1,0 +1,24 @@
+[package]
+name = "cargo-b64encode"
+version = "0.0.0"
+authors = ["Ryo Yamashita <qryxip@gmail.com>"]
+edition = "2018"
+license = "MIT OR Apache-2.0"
+description = "A Cargo subcommand for creating standalone source files with base64-encoded payload."
+repository = "https://github.com/qryxip/cargo-b64encode"
+keywords = ["competitive"]
+categories = ["command-line-utilities", "development-tools::cargo-plugins"]
+publish = false
+
+[dependencies]
+anyhow = "1.0.33"
+atty = "0.2.14"
+base64 = "0.13.0"
+cargo_metadata = "0.12.0"
+duct = "0.13.4"
+itertools = "0.9.0"
+shell-escape = "0.1.5"
+structopt = "0.3.20"
+tempfile = "3.1.0"
+termcolor = "1.1.0"
+which = "4.0.2"
