@@ -62,6 +62,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up `stable`
+        id: install-toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -135,6 +136,15 @@ jobs:
             ~/.cargo/.crates2.json
             ~/.cargo/bin/cargo-udeps${{ matrix.exe-suffix }}
           key: build-crates-${{ matrix.job-name }}-${{ steps.resolve-versions.outputs.cargo-udeps }}
+
+      - name: Cache for build cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/git
+            ~/.cargo/registry
+            ./target
+          key: build-build-${{ matrix.job-name }}-${{ steps.install-toolchain.outputs.rustc_hash }}-${{ hashFiles('./Cargo.*') }}
 
       - name: Install cargo-udeps v${{ steps.resolve-versions.outputs.cargo-udeps }}
         uses: actions-rs/cargo@v1
