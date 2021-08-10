@@ -1,4 +1,5 @@
 use anyhow::{anyhow, bail, Context as _};
+use camino::Utf8Path;
 use cargo_metadata as cm;
 use itertools::Itertools as _;
 use std::{
@@ -150,7 +151,7 @@ pub fn run(opt: Opt, shell: &mut Shell) -> anyhow::Result<()> {
     }?;
 
     let source_code = std::fs::read_to_string(&bin.src_path)
-        .with_context(|| format!("could not read `{}`", bin.src_path.display()))?;
+        .with_context(|| format!("could not read `{}`", bin.src_path))?;
 
     let artifact_base64 = build(
         shell,
@@ -256,8 +257,8 @@ fn bin_targets(metadata: &cm::Metadata) -> impl Iterator<Item = (&cm::Target, &c
 #[allow(clippy::too_many_arguments)]
 fn build(
     shell: &mut Shell,
-    target_dir: &Path,
-    manifest_dir: &Path,
+    target_dir: &Utf8Path,
+    manifest_dir: &Utf8Path,
     bin_name: &str,
     use_cross: bool,
     target: &str,
@@ -266,7 +267,7 @@ fn build(
 ) -> anyhow::Result<String> {
     fn run_command(
         shell: &mut Shell,
-        cwd: &Path,
+        cwd: &Utf8Path,
         program: impl AsRef<OsStr>,
         args: &[impl AsRef<OsStr>],
         before_spawn: fn(&mut duct::Expression),
@@ -317,7 +318,7 @@ fn build(
         artifact_path.set_extension("exe");
     }
 
-    let artifact_file_name = artifact_path.file_name().unwrap_or_else(|| "".as_ref());
+    let artifact_file_name = artifact_path.file_name().unwrap_or("");
 
     std::fs::copy(&artifact_path, tempdir.path().join(artifact_file_name))?;
 

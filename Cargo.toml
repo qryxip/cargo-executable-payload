@@ -10,14 +10,15 @@ keywords = ["competitive"]
 categories = ["command-line-utilities", "development-tools::cargo-plugins"]
 
 [dependencies]
-anyhow = "1.0.33"
+anyhow = "1.0.42"
 atty = "0.2.14"
 base64 = "0.13.0"
-cargo_metadata = "0.12.0"
-duct = "0.13.4"
-itertools = "0.9.0"
+camino = "1.0.5"
+cargo_metadata = "0.14.0"
+duct = "0.13.5"
+itertools = "0.10.1"
 shell-escape = "0.1.5"
-structopt = "0.3.20"
-tempfile = "3.1.0"
-termcolor = "1.1.0"
-which = "4.0.2"
+structopt = "0.3.22"
+tempfile = "3.2.0"
+termcolor = "1.1.2"
+which = "4.2.2"
