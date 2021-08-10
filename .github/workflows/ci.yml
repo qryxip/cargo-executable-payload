@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup `stable-x86_64-unknown-linux-gnu`
+      - name: Set up `stable-x86_64-unknown-linux-gnu`
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable-x86_64-unknown-linux-gnu
@@ -39,16 +39,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        toolchain:
+        job-name:
           - stable-x86_64-pc-windows-msvc
           - stable-x86_64-apple-darwin
           - stable-x86_64-unknown-linux-gnu
         include:
-          - { toolchain: stable-x86_64-pc-windows-msvc  , os: windows-2019 }
-          - { toolchain: stable-x86_64-apple-darwin     , os: macos-10.15  }
-          - { toolchain: stable-x86_64-unknown-linux-gnu, os: ubuntu-20.04 }
+          - { job-name: stable-x86_64-pc-windows-msvc  , exe-suffix: .exe, os: windows-2019 }
+          - { job-name: stable-x86_64-apple-darwin     , exe-suffix: ''  , os: macos-10.15  }
+          - { job-name: stable-x86_64-unknown-linux-gnu, exe-suffix: ''  , os: ubuntu-20.04 }
+    env:
+      NIGHTLY_TOOLCHAIN: nightly-2021-08-10
 
-    name: ${{ matrix.toolchain }}
+    name: ${{ matrix.job-name }}
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -59,13 +61,86 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: 'Setup `${{ matrix.toolchain }}`'
+      - name: Set up `stable`
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: ${{ matrix.toolchain }}
+          toolchain: stable
           default: true
           profile: minimal
           components: clippy
+
+      - name: Set up `${{ env.NIGHTLY_TOOLCHAIN }}`
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.NIGHTLY_TOOLCHAIN }}
+          profile: minimal
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Resolve `cargo-udeps ^0.1`
+        id: resolve-versions
+        run: |
+          python - cargo-udeps@^0.1 <<'EOF'
+          from argparse import ArgumentParser
+          import json
+          import urllib.request
+          import re
+
+          CRATE_SPEC = re.compile(r'\A([a-zA-Z0-9_-]+)@\^([0-9]+)\.([0-9]+)\Z')
+
+
+          def main() -> None:
+              parser = ArgumentParser()
+              parser.add_argument('specs', metavar='PSEUDO_SPECS', type=CrateSpec, nargs='+')
+              print('\n'.join(map(resolve, parser.parse_args().specs)))
+
+
+          class CrateSpec:
+              def __init__(self, s: str):
+                  if not (m := CRATE_SPEC.match(s)):
+                      raise RuntimeError(f'the version must be `{CRATE_SPEC.pattern}`')
+                  self.package_name = m.group(1)
+                  self.version_req_major = int(m.group(2))
+                  self.version_req_minor = int(m.group(3))
+
+
+          def resolve(spec: CrateSpec) -> str:
+              with urllib.request.urlopen(f'https://crates.io/api/v1/crates/{spec.package_name}') as res:
+                  versions = json.load(res)['versions']
+              matched = set()
+              for version in versions:
+                  major, minor, patch_pre_build = version['num'].split('.')
+                  major, minor = (int(major), int(minor))
+                  if ((major, spec.version_req_major) == (0, 0) and minor == spec.version_req_minor or major == spec.version_req_major and minor >= spec.version_req_minor) and patch_pre_build.isdecimal():
+                      matched.add((minor, int(patch_pre_build)))
+              if not matched:
+                  raise RuntimeError(f'No such package: `{spec.package_name} ^{spec.version_req_major}.{spec.version_req_minor}`')
+              minor, patch = max(matched)
+              return f'::set-output name={spec.package_name}::{spec.version_req_major}.{minor}.{patch}'
+
+
+          if __name__ == '__main__':
+              main()
+          EOF
+        shell: bash
+
+      - name: Cache for cargo-udeps
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/.crates.toml
+            ~/.cargo/.crates2.json
+            ~/.cargo/bin/cargo-udeps${{ matrix.exe-suffix }}
+          key: build-crates-${{ matrix.job-name }}-${{ steps.resolve-versions.outputs.cargo-udeps }}
+
+      - name: Install cargo-udeps v${{ steps.resolve-versions.outputs.cargo-udeps }}
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: cargo-udeps --version '=${{ steps.resolve-versions.outputs.cargo-udeps }}'
 
       - name: cargo-clippy
         uses: actions-rs/cargo@v1
@@ -80,6 +155,13 @@ jobs:
           args: --no-fail-fast
         env:
           RUST_BACKTRACE: full
+
+      - name: cargo-udeps
+        uses: actions-rs/cargo@v1
+        with:
+          command: udeps
+          args: --all-targets
+          toolchain: ${{ env.NIGHTLY_TOOLCHAIN }}
 
   upload-archives:
     strategy:
@@ -106,7 +188,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: 'Setup `stable-${{ matrix.host-triple }}` (target: `${{ matrix.target-triple }}`)'
+      - name: 'Set up `stable-${{ matrix.host-triple }}` (target: `${{ matrix.target-triple }}`)'
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable-${{ matrix.host-triple }}
